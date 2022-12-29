@@ -1,14 +1,15 @@
-const baseUrl = 'https://jsonplaceholder.typicode.com';
+const baseUrl = "https://jsonplaceholder.typicode.com";
 
 const resources = [
   {
-    name: 'todos',
+    name: "todos",
     url: `${baseUrl}/todos`,
-    methods: ['GET'],
+    methods: ["GET"],
+    persisted: true,
   },
   {
-    name: 'selectedTodo',
-  }
+    name: "selectedTodo",
+  },
 ];
 
 export default resources;
