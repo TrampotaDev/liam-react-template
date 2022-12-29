@@ -1,17 +1,22 @@
-import React from 'react';
-import { Provider } from 'react-redux';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import { Provider } from "react-redux";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
 // import store from './resources/index';
-import  { createLiamAsyncStore } from './liamsAsyncRedux';
-import resources from './resources';
+import { createLiamAsyncStore } from "./liamsAsyncRedux";
+import resources from "./resources";
+import { PersistGate } from "redux-persist/integration/react";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const { store, persistor } = createLiamAsyncStore(resources);
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <Provider store={createLiamAsyncStore(resources)}>
-    <App />
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
+      <App />
+    </PersistGate>
   </Provider>
 );
 
