@@ -4,10 +4,26 @@ const resources = [
   {
     name: 'todos',
     url: `${baseUrl}/todos`,
-    methods: ['GET'],
   },
   {
-    name: 'selectedTodo',
+    name: 'users',
+    url: `${baseUrl}/users`
+  },
+  {
+    name: 'userPosts',
+    url: `${baseUrl}/posts`,
+  },
+  {
+    name: 'selectedTodoDetail',
+    url: `${baseUrl}/todos/:id`,
+  },
+  {
+    name: 'selectedUser',
+    default: 1
+  },
+  { 
+    name: 'todo',
+    url: `${baseUrl}/todo`,
   }
 ];
 

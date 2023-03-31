@@ -1,51 +1,44 @@
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useState } from 'react';
 import './App.css';
 import { useData, useUpdate } from './liamsAsyncRedux';
 
 const App = () => {
-  const { data: { selectedTodo } } = useData([{ name: 'selectedTodo' }]);
+  const [someBool, setSomeBool] = useState(true)
+  const { data: [ users ], isLoading } = useData([ { name: 'users' }]);
+  const updateSelectedUser = useUpdate({ name: 'selectedUser' });
+
+  if (isLoading) {
+    return (
+      <div>
+        Loading App
+      </div>
+    )
+  }
   return (
       <div className="App">
+        <button onClick={() => setSomeBool(!someBool)}>show user</button>
         Todos
-        <div>
-          Selected: {selectedTodo.data?.title}
-        </div>
-        <Todos />
+        {users.data.map(user => (
+          <button onClick={() => updateSelectedUser({ updateFn: () => user.id })}>
+            {user.id}
+          </button>
+        ))}
+        {someBool && <User />}
       </div>
   );
 }
 
-const Todos = memo(() => {
-  const { isLoading, data: { todos } } = useData([{ name: 'todos' }]);
-  const { updateSelectedTodo, updateTodos } = useUpdate([ { name: 'selectedTodo'},  { name: 'todos' }]);
+const User = memo(() => {
+  const { data: [ selectedUser ] } = useData([
+    { name: 'selectedUser' }
+  ])
+  const { isLoading, data: [ userPosts ] } = useData([
+    { name: 'userPosts', parameters: { query: { userId: selectedUser.data }}, forceFetch: false }
+  ]);
+  console.log('render:', selectedUser, userPosts);
 
-  const selectOnClick = useCallback((todo) => {
-    updateSelectedTodo(() => ({ ...todo, selected: true }));
-    updateTodos((todos) => todos.map(item => {
-      if (item.id === todo.id) {
-        return ({
-          ...todo,
-          selected: true
-        });
-      }
-      if (item.selected) {
-        return ({
-          ...item,
-          selected: false
-        });
-      }
-      return item;
-    }))
-  }, []);
 
-  const deleteOnClick = useCallback((todo) => {
-    updateSelectedTodo(() => null);
-    updateTodos((todos) => {
-      const updatedTodos = todos.filter(item => item.id !== todo.id);
-      return updatedTodos;
-    })
-  }, []);
-
+  
   if (isLoading) {
     return (
       <div>
@@ -55,21 +48,27 @@ const Todos = memo(() => {
   }
   return (
     <div>
-      {todos.data.map(todo => (
-        <Todo todo={todo} onSelect={selectOnClick} onDelete={deleteOnClick} />
+      <button onClick={userPosts.refetch}>
+        refetch
+      </button>
+      {userPosts.data.map(post => (
+        <Post post={post} userId={selectedUser.data} />
       ))}
     </div>
   )
 });
 
-const Todo = memo(({ todo, onSelect, onDelete }) => {
+
+const Post = memo(({ post, userId  }) => {
+  const updatePosts = useUpdate({ name: 'userPosts', parameters: { query: { userId }} });
+  const deletePost = (id) => {
+    updatePosts({ refetch: true, unloadResources: [{ name: 'userPosts' }] });
+  }
+
   return (
     <div>
-      {todo.title}
-      <button onClick={() => onSelect(todo)}>
-        select
-      </button>
-      <button onClick={() => onDelete(todo)}>
+      {post.title}
+      <button onClick={() => deletePost(post.id)}>
         delete
       </button>
     </div>
