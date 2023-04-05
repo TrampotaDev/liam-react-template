@@ -21,6 +21,10 @@ const resources = [
     name: 'selectedUser',
     default: 1
   },
+  {
+    name: 'favorites',
+    default: [],
+  },
   { 
     name: 'todo',
     url: `${baseUrl}/todo`,

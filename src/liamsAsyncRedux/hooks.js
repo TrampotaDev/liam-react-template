@@ -36,7 +36,6 @@ import { apiCallsMap, storeRef } from './store';
 */}
 
 export const useData = (resourcesList) => {
-
   const ref = useRef({
     resourcesFetched: resourcesList.reduce((prev, curr) => {
       let key = curr.name;
@@ -120,7 +119,7 @@ export const useData = (resourcesList) => {
     ref.current.resourcesLastParams[index] = resource.key;
   });
 
-  output.data = Object.values(data);
+  output.data = data;
 
   return output;
 }
@@ -176,8 +175,9 @@ export const useUpdate = (resource, dependencies) => {
       const fallbackData = JSON.parse(JSON.stringify({ ...storeResource }));
       try {
         let key = resource.parameters && buildDataKeyFromParams(resource.parameters.path, resource.parameters.query);
+        let output = { data: null };
         if (optimistic || (!requestConfig && !refetch)) {
-          const updatedData = key ? updateFn(storeResource.paramData[key]) : updateFn(storeResource.data);
+          const updatedData = key ? updateFn(storeResource.paramData[key].data) : updateFn(storeResource.data);
           storeRef.store.dispatch({
             type: `SET_${resource.name}`,
             payload: updatedData,
@@ -191,8 +191,9 @@ export const useUpdate = (resource, dependencies) => {
         }
         if (requestConfig) {
           const { data } = await callApi({ url: requestConfig.url || mapParamsAndQueryToUrl(apiCallsMap[resource.name], resource.parameters.path, resource.parameters.query), method: requestConfig.method, data: requestConfig.body, headers: requestConfig.headers });
+          output.data = data;
           if (!refetch) {
-            let updatedData = key ? updateFn(storeResource.paramData[key], data) : updateFn(storeResource.data, data);
+            let updatedData = key ? updateFn(storeResource.paramData[key].data, data) : updateFn(storeResource.data, data);
             storeRef.store.dispatch({
               type: `SET_${resource.name}`,
               payload: updatedData,
@@ -212,18 +213,14 @@ export const useUpdate = (resource, dependencies) => {
             parameters: resource.parameters,
           });
         });
-        return {
-          success: true,
-        }
+        return output;
       } catch(e) {
         storeRef.store.dispatch({
           type: `SET_${resource.name}`,
           payload: fallbackData.data,
         });
-        return {
-          success: false,
-          error: e,
-        }
+        console.log('e:', e);
+        throw new Error(e.message);
       }
     }, dependencies)
   }
