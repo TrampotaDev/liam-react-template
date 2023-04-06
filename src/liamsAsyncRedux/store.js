@@ -4,7 +4,8 @@ import { buildDataKeyFromParams } from './helpers';
 
 export const storeRef = {};
 
-export const apiCallsMap = {}
+export const apiCallsMap = {};
+export const transformResponseMap = {};
 
 {/*
   This library is intended to entirely eliminate the need to write boiler plate redux code as well as hooks for subscribing to and updating redux stored data
@@ -25,6 +26,7 @@ export const createLiamAsyncStore = (resources) => {
   const reducers = {};
   resources.forEach(resource => {
     apiCallsMap[resource.name] = resource.url;
+    transformResponseMap[resource.name] = resource.transformResponse;
     let initialState = {
       status: resource.default || !resource.url ? 'idle' : 'unloaded',
       name: resource.name,

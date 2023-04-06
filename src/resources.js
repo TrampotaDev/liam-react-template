@@ -7,7 +7,10 @@ const resources = [
   },
   {
     name: 'users',
-    url: `${baseUrl}/users`
+    url: `${baseUrl}/users`,
+    transformResponse: (data) => {
+      return data.map(item => ({...item, name: item.name.toUpperCase()}));
+    }
   },
   {
     name: 'userPosts',

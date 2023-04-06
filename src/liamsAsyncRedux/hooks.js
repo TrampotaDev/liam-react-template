@@ -90,6 +90,10 @@ export const useData = (resourcesList) => {
        (resource.forceFetch === true && ref.current.resourcesLastParams[index] !== resource.key)
     ) {
       output.isLoading = true;
+      storeRef.store.dispatch({
+        type: `SET_${resource.name}_LOADING`,
+        parameters: resource.parameters,
+      });
       ref.current.resourcesFetched[resource.key] = true;
       getData(resource, dispatch);
     }
@@ -224,3 +228,37 @@ export const useUpdate = (resource, dependencies) => {
       }
     }, dependencies)
   }
+
+  export const getState = (resource) => {
+    const storeResource = storeRef.store.getState()[resource.name];
+    let key = resource.parameters && buildDataKeyFromParams(resource.parameters.path, resource.parameters.query);
+    if (key) {
+      return storeResource.paramData[key];
+    }
+    return storeResource;
+  }
+
+  export const setState = (resource, data) => {
+    storeRef.store.dispatch({
+      type: `SET_${resource.name}`,
+      payload: data,
+      parameters: resource.parameters,
+    })
+  }
+
+  export const loadData = (resource) => {
+    storeRef.store.dispatch({
+      type: `SET_${resource.name}_LOADING`,
+      parameters: resource.parameters,
+    });
+    getData(resource, storeRef.store.dispatch);
+  }
+
+  export const unloadData = (resource) => {
+    storeRef.store.dispatch({
+      type: `SET_${resource.name}_UNLOADED`,
+      parameters: resource.parameters,
+    });
+  }
+
+  // discarding response of a call in flight - useUpdate should return a UUID that can be called with discardData to ignore

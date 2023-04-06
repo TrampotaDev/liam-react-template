@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { apiCallsMap } from './store';
+import { apiCallsMap, transformResponseMap } from './store';
 
 const mapParamsToUrl = (baseUrl, params) => {
   let mappedUrl = baseUrl;
@@ -55,9 +55,13 @@ export const callApi = ({ url, headers, method, data, params={query: null, path:
 
 export const getData = async (resource, dispatch) => {
   const { data } = await callApi({ url: apiCallsMap[resource.name], method: 'GET', params: resource.parameters });
+  let transformedData = data;
+  if (transformResponseMap[resource.name]) {
+    transformedData = transformResponseMap[resource.name](data);
+  }
   dispatch({
     type: `SET_${resource.name}`,
-    payload: data,
+    payload: transformedData,
     parameters: resource.parameters,
   });
   return;

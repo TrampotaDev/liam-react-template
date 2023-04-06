@@ -1,8 +1,12 @@
 import { createLiamAsyncStore } from './store';
-import { useData, useUpdate } from './hooks';
+import { useData, useUpdate, getState, setState, unloadData, loadData } from './hooks';
 
 export {
   createLiamAsyncStore,
   useData,
   useUpdate,
+  getState,
+  setState,
+  unloadData,
+  loadData
 }
